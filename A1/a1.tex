@@ -1,0 +1,122 @@
+\documentclass{article}
+\author{Zimo Li}
+\usepackage{fullpage,amsmath,amssymb}
+
+\begin{document}
+
+\noindent Student who wrote the solution to this question: Zimo Li, Yu-Hsuan Chuang, Jiahong Zhai\\
+Students who read this solution to verify its clarity and correctness: Zimo Li, Yu-Hsuan Chuang, Jiahong Zhai\\
+
+\begin{enumerate}
+    \item
+    \begin{enumerate}
+        \item
+        Running time of merging the first two piles is\[m+m\]
+        then the running time of merging the resulting pile with the third pile is\[2m+m\]
+        similarly, merging all piles into a single pile would have a worst case running time of
+        \begin{align*}
+            (m+m)+(2m+m)+(3m+m)+\cdots+\Big((n-1)m+m\Big) &= m\sum_{i=1}^{n-1}i+(n-1)m\\
+            &= \frac{n(n-1)}{2}m+(n-1)m\\
+            &=\frac{mn^2}{2} + \frac{mn}{2}-m
+        \end{align*}
+        which is $\Theta(mn^2)$.\\
+
+        \item Split the piles into two sets of $n/2$ piles and merge each sets recursively, then merge the resulting two piles. If the number of piles of each set is greater than $2$, split them again recursively. If there are only $2$ piles left, we can merge them in $O(m)$ time. The running of this algorithm is
+        \[T(n)=2\cdot T(n/2)+c\cdot m\cdot n\]
+        since merging two sorted piles takes time proportional to the size of the resulting pile, and that pile would have size $m\cdot n$.
+
+        Therefore, according to the Master Theorem, the running time is $\Theta(mn\log{n})$.
+    \end{enumerate}
+
+    \newpage
+    Student who wrote the solution to this question: Zimo Li, Yu-Hsuan Chuang, Jiahong Zhai\\
+    Students who read this solution to verify its clarity and correctness: Zimo Li, Yu-Hsuan Chuang, Jiahong Zhai\\
+    \item
+    \begin{enumerate}
+        \item 
+        \begin{enumerate}
+            \item Divide $A$ into two subarrays $L, R$ of equal size at the midpoint. (since $n$ is a power of $2$, we treat `midpoint' as either the tail of the left subarray or the head of the right subarray)
+            \item Find the maximum subarray sum of the left half and the maximum subarray sum of the right half recursively.
+            \item Find the maximum subarray sum of $A$ that cross the midpoint, which means that this subarray starts in the left subarray and ends in the right subarray. This can be done in linear time because we only need to find the maximum subarray sum that end with the tail of the left subarray $L_{tail}$ and the maximum subarray sum that start with the head of the right subarray $R_{head}$, then the maximum subarray sum of $A$ that cross the midpoint is $L_{tail}+R_{head}$.
+            \item Then the maximum subarray of $A$ is the maximum of the above three cases, because they cover all possible maximum subarrays of $A$ (one that only contain the left half, one that only contain the right half, and the one that crosses the midpoint).
+        \end{enumerate}
+
+        Pseudocode:
+        \begin{verbatim}
+
+# start the algrithm by calling max_subarray(A, 1, n), n is the length of A
+
+ max_subarray(A, i, j): # main body of the algorithm
+    if i == j:
+        return A[i]
+    mid = (i + j) // 2      # mid is the index of the last ele of left subarray
+    L_max = max_subarray(A, i, mid)
+    R_max = max_subarray(A, mid + 1, j)
+    M_max = max_subarray_mid(A, i, mid, j)
+    return MAX(L_max, R_max, M_max)
+
+ max_subarray_mid(A, i, mid, j): # find the maximum subarray that cross mid
+    L_tail = A[mid]
+    sum = 0
+    for r in A[mid:i - 1:-1]:
+        sum += r
+        if sum > L_tail:
+            L_tail = sum
+    R_head = A[mid + 1]
+    sum = 0
+    for r in A[mid + 1:j]:
+        sum += r
+        if sum > R_head:
+            R_head = sum
+    return L_tail + R_head
+        \end{verbatim}
+        The recurrence relation is $T(n) = 2\cdot T(n/2) + c\cdot n$ because the combine step iterate through the array from the midpoint which takes linear time. By the Master Theorem, this algorithm runs in $O(n\log n)$.
+        
+        \newpage
+        \item
+        \begin{enumerate}
+            \item Divide $A$ into two subarrays $L, R$ of equal size at the midpoint.
+            \item For each of the left and right subarray, find the following recursively:
+            \begin{enumerate}
+                \item Total sum of the subarray, $L_{total}, R_{total}$.
+                \item Maximum subarray sum that start with the head of the subarray, $L_{head}, R_{head}$.
+                \item Maximum subarray sum that end with the tail of the subarray, $L_{tail}, R_{tail}$.
+                \item Maximum subarray sum of the subarray, $L_{max}, R_{max}$.
+            \end{enumerate}
+            \item Then we can combine the two subproblems in the following way:
+            \begin{enumerate}
+                \item Total sum of $A$ is the sum of the total sums of two subarrays, so\\
+                $A_{total} = L_{total} + R_{total}$.
+                \item Maximum subarray sum that start with the head of A, $A_{head}$. 
+                If $L_{head} < L_{total} + R_{head})$ then $A_{head}$ cross the midpoint, otherwise it doesn't cross midpoint. So, $A_{head} = \max(L_{head}, L_{total} + R_{head})$.
+                \item Similarly, $A_{tail} = \max(R_{tail}, L_{tail} + R_{total})$.
+                \item Just like in part (a), the maximum subarray sum of $A$ is the maximum of the three cases: $A_{max} = \max(L_{max}, R_{max}, L_{tail} + R_{head})$.
+            \end{enumerate}
+            $A_{max}$ is the final result we are looking for. \\
+
+            Pseudocode:
+            \begin{verbatim}
+
+# start the algrithm by calling max_subarray(A, 1, n), n is the length of A.
+# the last ele of the return value is the result we are looking for.
+
+ max_subarray(A, i, j):
+    if i == j:
+        return (A[i], A[i], A[i], A[i])
+    else:
+        mid = (i + j) // 2
+        L_total, L_head, L_tail, L_max = max_subarray(A, i, mid)
+        R_total, R_head, R_tail, R_max = max_subarray(A, mid + 1, j)
+        A_total = L_total + R_total
+        A_head = MAX(L_head, L_total + R_head)
+        A_tail = MAX(R_tail, L_tail + R_total)
+        A_max = MAX(L_max, R_max, L_tail + R_head)
+        return (A_total, A_head, A_tail, A_max)
+        # A_max is the maximum subarray sum of A
+            \end{verbatim}
+            The recurrence relation is $T(n) = 2\cdot T(n/2) + c$ because the combine step now takes constant time. By the Master Theorem, this algorithm runs in $O(n)$.
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+\end{document}

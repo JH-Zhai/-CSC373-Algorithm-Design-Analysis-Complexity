@@ -1,0 +1,54 @@
+Algorithm for 3.a 3.b together:
+
+First need to initialize C(n*n) matrix for storing cost of moving cars for part a, and S(n*n) matrix for storing the index of split car when joining a segment for part b. We define tsqrt(i, j) as the square root of the total weight of cars i to j add together.
+
+01		main(1,n):			// O(n^3)
+02			for l in 1~n:
+03				for i in 1~(n-l+1):			// O(n^2) inner loop iterations
+04					j = i + l - 1
+05					DP(i,j)			// O(n)  each time
+06			return C(1,n) 
+
+
+07		DP(i,j):			// O(n)
+08			if i == j:
+09				C(i,j) = min{wi^0.5, wj^0.5} + 0
+10				S(i,j) = i
+11			else:
+12				s = i
+13				cost = +inf
+14				for k in i~j-1:			// O(n) loop iterations
+15					if min{tsqrt(i,k), tsqrt(k+1,j)} + C(i,k) + C(k+1,j) < cost:
+16						cost = min{tsqrt(i,k), tsqrt(k+1,j)} + C(i,k) + C(k+1,j)
+18				C(i,j) = cost
+19				S(i,j) = s
+
+
+a:
+To find best cost of forming car segment i~j, need to split the segment to 2 part. Need to find all possibility of spliting and their cost respectively, the minimum cost of joining these two parts plus their own cost is what we want. Because every join operation actually join two segments.
+
+As for the actual cost of i~j, C(i,j):
+C(i,j) = 0																									if i == j
+C(i,j) = min(i<=k<j){min{tsqrt(i,k), tsqrt(k+1,j)} + C(i,k) + C(k+1,j)}			if i != j
+
+The pseudo code is given above.
+Run time is O(N^3). Because main function iterate O(n^2) times, each time calls DP once, and DP iterate O(n) times. So in combine, complexity is O(N^3).
+
+b:
+In the above pseudo code, every time an entry in C matrix is confirmed, then the corresponding entry indicating the index of spliting train car in S matrix is also stored. To print out an optimal order of train car conection from i to j, use the pseudo-code below:
+
+PrintOrder(i,j):
+	if(i = j):
+		return nothing	//no need to connect one car to itself
+	else
+		print("segment of car %d to car %d split by car %d", i, j, S(i,j))
+		PrintOrder(i, S(i,j))
+		PrintOrder(S(i,j)+1, j)
+
+
+
+
+
+
+
+

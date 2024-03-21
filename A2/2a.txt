@@ -1,0 +1,29 @@
+R <- {S}
+d(s) <- 0
+for each node v != s, if (s,v) is an edge then d(v) <- Wsv, otherwise d(v) <- inf
+
+t(k): toughness of urrently found shortest path from s to k
+t(s) <- 0
+for each node v != s, if (s,v) is an edge then t(v) <- Wsv, otherwise t(v) <- inf
+
+p(k): an list of all nodes in the easiest path from s to k, in the right order from left to right.
+p(s) <- s
+for each node v != s, if (s,v) is an edge then p(v) <- [s, v], otherwise p(v) <- null
+
+
+Update all p, t, d value for all nodes, by modified Dijkstra’s Algorithm:
+
+while R != V do
+	u <- node not in R with mimimum d-value
+	R <- R∪{u}
+	for each node v s.t. (u,v) is an edge do
+		if d(u) + Wuv < d(v) then
+			d(v) <- d(u) + Wuv
+			t(v) <- Max[t(u), Wuv]
+			p(v) <- p(u) append v
+
+for any node v, the easiest path is p(v), the toughness is t(v)
+
+Our algrithm add t and p attributes for every nodes in the gragh to record thier toughness and path of the current found shortest path to s respectively. During the iteration, these two attributes get updated every time algrithm finds a shorter path. After the iteration, these two attributes will record the shortest path and the toughness of this path.
+
+As for complexity, our algrithm does not add any loops or non-constant time complexity parts. So time complexity is the same as origin Dijkstra, which is θ(n^2) for naive and θ((n+m)logn) for sophisticated.

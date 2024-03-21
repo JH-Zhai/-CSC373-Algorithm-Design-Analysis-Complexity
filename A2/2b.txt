@@ -1,0 +1,7 @@
+The answer is no. 
+Our modified Dijkstra follow the original workflow, especially, it doesn't change how algrithm dicied wich node to visit next nor how to compare which path is shorter.
+So it cannot handle negative edge with cycle. And it may report false easiest path or false toughness. Counter example as below:
+
+insert graph here->
+
+If we start from s. algrithm will decide shortest path to to v is s -> v, and the toughness of v is 3. But the true shortest path to v is s -> u -> v, and toughness of this path is 4. So our algrithm does not guarantee to work correctly this time.
